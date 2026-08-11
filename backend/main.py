@@ -11,11 +11,15 @@ class Transaction(BaseModel):
     amount: float
     date: str
 
+
+# Essentially a shopping history
+transactions = []
+
+
+# --------------------- ROUTES -----------------------
+
 # If somebody visits:
-# GET /
-# ↓
-# run:
-# read_root()
+# "GET /"   --then->  read_root()
 @app.get("/")
 def read_root():
     return {"message": "Expense Tracker backend is running!"}
@@ -24,5 +28,15 @@ def read_root():
 # Inputs are expected to match the Transaction class
 @app.post("/transactions")
 def add_transaction(transaction: Transaction):
-    # sends the transaction right back (for now)
+    transactions.append(transaction)
+    # sends the transaction back
     return transaction
+
+
+# To be able to see the list
+@app.get_transactions("/transactions")
+def get_transaction():
+    return transactions
+
+
+
