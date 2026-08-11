@@ -1,0 +1,7 @@
+In main.py why do we use "BaseModel"?
+- It allows us to aumotaically get more behavior from Pydantic
+  - ie: check required fields are there, types are reasonable, convert incoming JSON to python object, give FastAPI clear info
+
+
+Get = give me information
+Post = I am sending you new information
