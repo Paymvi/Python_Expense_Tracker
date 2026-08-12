@@ -34,9 +34,19 @@ def add_transaction(transaction: Transaction):
 
 
 # To be able to see the list
-@app.get_transactions("/transactions")
-def get_transaction():
+@app.get("/transactions")
+def get_transactions():
     return transactions
 
+
+# Add up total
+@app.get("/total")
+def get_total():
+    total = 0
+
+    for transaction in transactions:
+        total += transaction.amount
+
+    return {"total": total}
 
 
