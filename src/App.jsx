@@ -1,122 +1,173 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+
+
+// Open page
+//    ↓
+// React asks Python: GET /total
+//    ↓
+// Python calculates total
+//    ↓
+// React displays it
+
+// Click +
+//    ↓
+// Fill out modal
+//    ↓
+// React sends: POST /transactions
+//    ↓
+// Python saves transaction
+//    ↓
+// React asks Python: GET /total
+//    ↓
+// Updated total appears
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [total, setTotal] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
+
+  // 1st python connection
+  // Gets the total with python backend endpoint
+  async function getTotal() {
+
+    // React sends GET /total
+    const response = await fetch("http://127.0.0.1:8000/total");
+
+    // turns the JSON into a JS object
+    const data = await response.json();
+
+    setTotal(data.total);
+  }
+
+  // So that when the React page first lods, it runs the getTotal function
+  useEffect(() => {
+    getTotal();
+  }, []);
+
+
+  async function handleAddPurchase() {
+    if (!name || !amount || !date) {
+      return;
+    }
+
+    const transaction = {
+      name: name,
+      amount: Number(amount),
+      date: date,
+    };
+
+    // 2nd python connection
+    await fetch("http://127.0.0.1:8000/transactions", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      // turns the JS object into JSON
+      body: JSON.stringify(transaction),
+    });
+
+
+    // "await" means wait until this finishes before continuing
+    await getTotal();
+
+
+    setName("");
+    setAmount("");
+    setDate("");
+
+    setIsModalOpen(false);
+  }
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <main className="app">
+
+      <section className="total-card">
+        <p>Total Spent</p>
+
+        <h1>${total.toFixed(2)}</h1>
       </section>
 
-      <div className="ticks"></div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <button
+        className="add-button"
+        onClick={() => setIsModalOpen(true)}
+      >
+        +
+      </button>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+
+      {isModalOpen && (
+        <div className="modal-backdrop">
+
+          <div className="modal">
+
+            <h2>Add Purchase</h2>
+
+
+            <label>
+              Product
+
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Chipotle"
+              />
+            </label>
+
+
+            <label>
+              Amount
+
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(event) => setAmount(event.target.value)}
+                placeholder="14.50"
+              />
+            </label>
+
+
+            <label>
+              Date
+
+              <input
+                type="date"
+                value={date}
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
+
+
+            <div className="modal-actions">
+
+              <button onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </button>
+
+              <button onClick={handleAddPurchase}>
+                Add
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+    </main>
+  );
 }
 
-export default App
+
+export default App;

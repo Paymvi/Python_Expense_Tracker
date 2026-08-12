@@ -1,0 +1,232 @@
+// No python backend version
+
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  // -------------------- STATE --------------------
+
+  // Keeps track of how much money has been spent.
+  // Starts at 0.
+  const [total, setTotal] = useState(0);
+
+  // Keeps track of whether the modal is open.
+  // false = closed
+  // true = open
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // These three state variables store whatever
+  // the user types into the form inputs.
+  const [name, setName] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
+
+
+  // -------------------- FUNCTIONS --------------------
+
+  // This function runs when the user clicks
+  // the "Add" button inside the modal.
+  function handleAddPurchase() {
+
+    // Input fields give us text.
+    // For example, "14.50" is technically a string.
+    //
+    // Number() converts it into an actual number:
+    // "14.50" -> 14.5
+    const numericAmount = Number(amount);
+
+
+    // Check whether any fields are empty.
+    //
+    // !name means:
+    // "if name does not have a value"
+    //
+    // If anything is missing, return stops
+    // the function immediately.
+    if (!name || !amount || !date) {
+      return;
+    }
+
+
+    // Add the new purchase amount onto the current total.
+    //
+    // Example:
+    //
+    // total = 20
+    // numericAmount = 14.50
+    //
+    // new total = 34.50
+    setTotal(total + numericAmount);
+
+
+    // Clear the form fields after adding the purchase.
+    //
+    // This means when the modal opens again,
+    // the old Chipotle purchase won't still be there.
+    setName("");
+    setAmount("");
+    setDate("");
+
+
+    // Close the modal after successfully adding the purchase.
+    setIsModalOpen(false);
+  }
+
+
+  // -------------------- WHAT APPEARS ON THE SCREEN --------------------
+
+  return (
+    <main className="app">
+
+      {/* ---------------- TOTAL ---------------- */}
+
+      <section className="total-card">
+        <p>Total Spent</p>
+
+        {/*
+          toFixed(2) makes sure we always display
+          exactly two decimal places.
+
+          Example:
+
+          14.5 -> 14.50
+          20   -> 20.00
+        */}
+        <h1>${total.toFixed(2)}</h1>
+      </section>
+
+
+      {/* ---------------- GREEN + BUTTON ---------------- */}
+
+      <button
+        className="add-button"
+
+        // When the button is clicked,
+        // change isModalOpen from false -> true.
+        //
+        // That causes the modal below to appear.
+        onClick={() => setIsModalOpen(true)}
+      >
+        +
+      </button>
+
+
+      {/* ---------------- MODAL ---------------- */}
+
+      {/*
+        This is conditional rendering.
+
+        It basically means:
+
+        IF isModalOpen is true,
+        show everything after &&.
+
+        If isModalOpen is false,
+        React displays nothing here.
+      */}
+
+      {isModalOpen && (
+        <div className="modal-backdrop">
+
+          <div className="modal">
+
+            <h2>Add Purchase</h2>
+
+
+            {/* ---------------- PRODUCT NAME ---------------- */}
+
+            <label>
+              Product
+
+              <input
+                type="text"
+
+                // Whatever is stored in "name"
+                // should appear inside this input.
+                value={name}
+
+                // Every time the user types,
+                // save the new text into "name".
+                onChange={(event) => setName(event.target.value)}
+
+                placeholder="Chipotle"
+              />
+            </label>
+
+
+            {/* ---------------- AMOUNT ---------------- */}
+
+            <label>
+              Amount
+
+              <input
+                type="number"
+
+                // Allows decimal values such as 14.50.
+                step="0.01"
+
+                // Display the value stored in amount.
+                value={amount}
+
+                // When the user types, update the amount state.
+                onChange={(event) => setAmount(event.target.value)}
+
+                placeholder="14.50"
+              />
+            </label>
+
+
+            {/* ---------------- DATE ---------------- */}
+
+            <label>
+              Date
+
+              <input
+                type="date"
+
+                // Display the date stored in state.
+                value={date}
+
+                // Update date whenever the user chooses a different date.
+                onChange={(event) => setDate(event.target.value)}
+              />
+            </label>
+
+
+            {/* ---------------- MODAL BUTTONS ---------------- */}
+
+            <div className="modal-actions">
+
+              {/* Close the modal without adding anything. */}
+              <button
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </button>
+
+
+              {/*
+                Run handleAddPurchase when clicked.
+
+                That function:
+                1. Checks the inputs
+                2. Converts amount into a number
+                3. Adds amount to total
+                4. Clears the form
+                5. Closes the modal
+              */}
+              <button onClick={handleAddPurchase}>
+                Add
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </main>
+  );
+}
+
+export default App;

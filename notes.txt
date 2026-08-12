@@ -5,3 +5,18 @@ In main.py why do we use "BaseModel"?
 
 Get = give me information
 Post = I am sending you new information
+
+
+React app runs here:
+http://localhost:5173
+
+and Python backend runs here
+http://127.0.0.1:8000
+
+^ Since there are different addresses, the browser wont let React talk to python unless pythong explicitly allows it.
+Thats why you need the CORS thing
+
+"from fastapi.middleware.cors import CORSMiddleware" 
+is FastAPI's CORS helper
+
+middleware chekcs to see if the requests are allowed

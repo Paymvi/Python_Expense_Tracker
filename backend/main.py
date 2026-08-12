@@ -1,10 +1,27 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
 # FastAPI = blueprint/type of backend
 # app = your actual backend
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+
+    # Allows react app at 5173 to make requests
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+
+    # Allows things like GET POST PUT DELETE OPTIONS
+    allow_methods=["*"], 
+
+    allow_headers=["*"],
+)
 
 class Transaction(BaseModel):
     name: str
